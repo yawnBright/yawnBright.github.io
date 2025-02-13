@@ -16,7 +16,7 @@
 
 <html lang="zh"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="utf-8" />
-    <title>测试 | yawnBright&#39;s Blog</title>
+    <title>同步锁与异步锁 | yawnBright&#39;s Blog</title>
     <meta name="robots" content="noindex">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="keywords" content="Documentation, Hugo, Hugo Theme, Bootstrap" />
@@ -31,15 +31,97 @@
 <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
 <link rel="manifest" crossorigin="use-credentials" href="http://localhost:1313/site.webmanifest">
-<meta property="og:title" content="测试" />
-<meta property="og:description" content="" />
+<meta property="og:title" content="同步锁与异步锁" />
+<meta property="og:description" content="同步锁不能跨.await link下面这段代码无法通过编译，future cannot be sent between threads safely, the trait_Send_ is not implemented for std::sync::MutexGuard&lt;&#39;_, i32&gt;, which is required by{async block@src/main.rs:13:18: 13:28}: Send
+
+
+
+  
+  
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+  use std::sync::{Arc, Mutex};
+use tokio;
+
+#[tokio::main]
+async fn main() {
+    let data = Arc::new(Mutex::new(20));
+    let data_copy = data.clone();
+    tokio::spawn(async move {
+        let mut d = data_copy.lock().unwrap();
+        *d &#43;= 1;
+
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+        // *d &#43;= 1;
+    });
+    println!(&#34;Hello, world!&#34;);
+    loop {}
+}
+  
+  
+标准库的同步互斥锁无法在线程间安全的传递
+
+AI 解释：
+标准库中的 std::sync::Mutex 是基于操作系统的同步原语实现的，它是同步锁。
+当一个线程获取到 Mutex 锁后，其他线程在尝试获取该锁时会被阻塞，直到持有锁的线程释放锁。
+而且，标准库的 Mutex 是和线程绑定的，它假设锁的获取和释放操作都在同一个线程中完成" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/docs/%E6%B5%8B%E8%AF%95/" /><meta property="og:image" content="http://localhost:1313/opengraph/card-base-2_hu_5d4239ac100ee757.png"/><meta property="article:section" content="docs" />
-<meta property="article:published_time" content="2025-02-12T22:48:08+08:00" />
-<meta property="article:modified_time" content="2025-02-12T22:48:08+08:00" /><meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="http://localhost:1313/opengraph/card-base-2_hu_5d4239ac100ee757.png"/>
-<meta name="twitter:title" content="测试"/>
-<meta name="twitter:description" content=""/>
+<meta property="og:url" content="http://localhost:1313/docs/rust/tokio/%E5%90%8C%E6%AD%A5%E9%94%81%E4%B8%8E%E5%BC%82%E6%AD%A5%E9%94%81/" /><meta property="og:image" content="http://localhost:1313/opengraph/card-base-2_hu_9e40e6320f206d12.png"/><meta property="article:section" content="docs" />
+<meta property="article:published_time" content="2025-02-12T23:02:10+08:00" />
+<meta property="article:modified_time" content="2025-02-12T23:02:10+08:00" /><meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://localhost:1313/opengraph/card-base-2_hu_9e40e6320f206d12.png"/>
+<meta name="twitter:title" content="同步锁与异步锁"/>
+<meta name="twitter:description" content="同步锁不能跨.await link下面这段代码无法通过编译，future cannot be sent between threads safely, the trait_Send_ is not implemented for std::sync::MutexGuard&lt;&#39;_, i32&gt;, which is required by{async block@src/main.rs:13:18: 13:28}: Send
+
+
+
+  
+  
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+  use std::sync::{Arc, Mutex};
+use tokio;
+
+#[tokio::main]
+async fn main() {
+    let data = Arc::new(Mutex::new(20));
+    let data_copy = data.clone();
+    tokio::spawn(async move {
+        let mut d = data_copy.lock().unwrap();
+        *d &#43;= 1;
+
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+        // *d &#43;= 1;
+    });
+    println!(&#34;Hello, world!&#34;);
+    loop {}
+}
+  
+  
+标准库的同步互斥锁无法在线程间安全的传递
+
+AI 解释：
+标准库中的 std::sync::Mutex 是基于操作系统的同步原语实现的，它是同步锁。
+当一个线程获取到 Mutex 锁后，其他线程在尝试获取该锁时会被阻塞，直到持有锁的线程释放锁。
+而且，标准库的 Mutex 是和线程绑定的，它假设锁的获取和释放操作都在同一个线程中完成"/>
 
     
         <link rel="alternate" type="application/atom+xml" title="Atom feed for yawnBright&#39;s Blog" href="/index.xml" />
@@ -76,27 +158,27 @@
                 
                     
                     
-                        <li class="sidebar-dropdown  ">
+                        <li class="sidebar-dropdown  current active">
                             <button class="btn">
                                 <i class="material-icons me-2">article</i>
                                 Rust
                             </button>
-                            <div class="sidebar-submenu ">
+                            <div class="sidebar-submenu d-block">
                                 <ul>
                                     
                                         
                                         
-                                            <li class="sidebar-dropdown nested  ">
+                                            <li class="sidebar-dropdown nested  current active">
                                                 <button class="btn">
                                                     
                                                     Tokio
                                                 </button>
-                                                <div class="sidebar-submenu ">
+                                                <div class="sidebar-submenu d-block">
                                                     <ul>
                                                         
                                                             
                                                             
-                                                                <li class=" "><a class="sidebar-nested-link" href="http://localhost:1313/docs/rust/tokio/%E5%90%8C%E6%AD%A5%E9%94%81%E4%B8%8E%E5%BC%82%E6%AD%A5%E9%94%81/">同步锁与异步锁</a></li>
+                                                                <li class="current "><a class="sidebar-nested-link" href="http://localhost:1313/docs/rust/tokio/%E5%90%8C%E6%AD%A5%E9%94%81%E4%B8%8E%E5%BC%82%E6%AD%A5%E9%94%81/">同步锁与异步锁</a></li>
                                                             
                                                         
                                                     </ul>
@@ -111,7 +193,7 @@
                 
                     
                         
-                        <li class="current">
+                        <li class="">
                             <a class="sidebar-root-link" href="http://localhost:1313/docs/%E6%B5%8B%E8%AF%95/">
                                 <i class="material-icons me-2">article</i>
                                 
@@ -255,10 +337,26 @@
                     <meta itemprop="position" content='1' />
                 </li>
             
+            
+                <li class="breadcrumb-item text-capitalize" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a itemprop="item" href="/docs/rust/">
+                        <span itemprop="name">Rust</span>
+                    </a>
+                    <meta itemprop="position" content='2' />
+                </li>
+            
+            
+                <li class="breadcrumb-item text-capitalize" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                    <a itemprop="item" href="/docs/rust/tokio/">
+                        <span itemprop="name">Tokio</span>
+                    </a>
+                    <meta itemprop="position" content='3' />
+                </li>
+            
         
             <li class="breadcrumb-item text-capitalize active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-                <span itemprop="name">测试</span>
-                <meta itemprop="position" content='2' />
+                <span itemprop="name">同步锁与异步锁</span>
+                <meta itemprop="position" content='4' />
             </li>
         
     </ul>
@@ -266,26 +364,42 @@
                                     
                                     <div class="row flex-xl-nowrap">
                                         
-                                        <div class="docs-toc col-xl-3  visually-hidden  d-xl-block"><toc>
+                                        <div class="docs-toc col-xl-3    d-xl-block"><toc>
     <div class="fw-bold text-uppercase mb-2">On this page</div>
-    <nav id="toc"></nav>
+    <nav id="toc">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#同步锁不能跨await">同步锁不能跨.await</a></li>
+        <li><a href="#解决办法">解决办法</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </toc></div>
                                         
                                         
-                                        <div class="docs-toc-mobile  visually-hidden  d-print-none d-xl-none">
+                                        <div class="docs-toc-mobile    d-print-none d-xl-none">
                                             <button id="toc-dropdown-btn" class="btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-offset="0,0" aria-expanded="false">
                                                 Table of Contents
                                             </button>
-<nav id="toc-mobile"></nav></div>
-                                        <div class="docs-content col-12  mt-0">
+<nav id="toc-mobile">
+  <ul class="dropdown-menu">
+    <li>
+      <ul>
+        <li><a href="#同步锁不能跨await">同步锁不能跨.await</a></li>
+        <li><a href="#解决办法">解决办法</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+                                        <div class="docs-content col-12 col-xl-9 mt-0">
                                             <div class="mb-0 d-flex">
                                                 
                                                 <i class="material-icons title-icon me-2">article</i>
                                                 
                                                 <h1 class="content-title mb-0">
-                                                    测试
-                                                    
-                                                        <span class="badge bg-default fs-6 mb-1 align-middle">DRAFT</span>
+                                                    同步锁与异步锁
                                                     
                                                 </h1>
                                             </div>
@@ -296,7 +410,99 @@
                                                 
     
     <div data-prismjs-copy="" data-prismjs-copy-success="" data-prismjs-copy-error="">
-        
+        <h2 id="同步锁不能跨await">同步锁不能跨.await <a href="#%e5%90%8c%e6%ad%a5%e9%94%81%e4%b8%8d%e8%83%bd%e8%b7%a8await" class="anchor" aria-hidden="true"><i class="material-icons align-middle">link</i></a></h2><p>下面这段代码无法通过编译，<code>future cannot be sent between threads safely, the trait_Send_ is not implemented for std::sync::MutexGuard&lt;'_, i32&gt;, which is required by{async block@src/main.rs:13:18: 13:28}: Send</code></p>
+
+
+
+  
+  
+  
+
+  
+  
+  
+  
+
+  
+
+  <div class="prism-codeblock ">
+  <pre id="0d0c7d0" class="language-rust ">
+  <code>use std::sync::{Arc, Mutex};
+use tokio;
+
+#[tokio::main]
+async fn main() {
+    let data = Arc::new(Mutex::new(20));
+    let data_copy = data.clone();
+    tokio::spawn(async move {
+        let mut d = data_copy.lock().unwrap();
+        *d &#43;= 1;
+
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+        // *d &#43;= 1;
+    });
+    println!(&#34;Hello, world!&#34;);
+    loop {}
+}</code>
+  </pre>
+  </div>
+<p>标准库的同步互斥锁无法在线程间安全的传递</p>
+<blockquote>
+<p>AI 解释：
+标准库中的 std::sync::Mutex 是基于操作系统的同步原语实现的，它是同步锁。
+当一个线程获取到 Mutex 锁后，其他线程在尝试获取该锁时会被阻塞，直到持有锁的线程释放锁。
+而且，标准库的 Mutex 是和线程绑定的，它假设锁的获取和释放操作都在同一个线程中完成</p>
+<blockquote>
+<p>当一个线程获取到锁后调用.await，然后被切走，这个线程又被用于执行另一个tokio任务,
+这个任务再次尝试获取锁，导致死锁</p></blockquote></blockquote>
+<h2 id="解决办法">解决办法 <a href="#%e8%a7%a3%e5%86%b3%e5%8a%9e%e6%b3%95" class="anchor" aria-hidden="true"><i class="material-icons align-middle">link</i></a></h2><ul>
+<li>在 .await 期间不持有锁</li>
+</ul>
+<p>下面这样写可以通过编译：</p>
+
+
+
+  
+  
+  
+
+  
+  
+  
+  
+
+  
+
+  <div class="prism-codeblock ">
+  <pre id="9044a81" class="language-rust ">
+  <code>use std::sync::{Arc, Mutex};
+use tokio;
+
+#[tokio::main]
+async fn main() {
+    let data = Arc::new(Mutex::new(20));
+    let data_copy = data.clone();
+    tokio::spawn(async move {
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+        let mut d = data_copy.lock().unwrap();
+        *d &#43;= 1;
+        // tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+    });
+    println!(&#34;Hello, world!&#34;);
+    loop {}
+}</code>
+  </pre>
+  </div>
+<ul>
+<li>使用异步锁</li>
+</ul>
+<p>比如使用tokio::sync::Mutex
+提供的锁最大的优点就是：它可以在 .await 执行期间被持有，而且不会有任何问题。
+但是代价就是，这种异步锁的性能开销会更高。</p>
+<ul>
+<li>使用异步任务和通过消息传递来管理状态</li>
+</ul>
+
     </div>
 
     
@@ -306,13 +512,13 @@
                                             <div><hr class="doc-hr">
 <div id="doc-nav" class="d-print-none">
 
-	<div class="row flex-xl-nowrap ">
-	<div class="col-sm-6 pt-2 doc-next">
-		<a href="/docs/rust/tokio/%E5%90%8C%E6%AD%A5%E9%94%81%E4%B8%8E%E5%BC%82%E6%AD%A5%E9%94%81/">
-			<div class="card h-100 my-1">
+	<div class="row flex-xl-nowrap flex-row-reverse">
+	<div class="col-sm-6 pt-2 doc-prev">
+		<a class="ms-auto" href="/docs/%E6%B5%8B%E8%AF%95/">
+			<div class="card h-100 my-1 text-end">
 				<div class="card-body py-2">
-                    <p class="card-title fs-5 fw-semibold lh-base mb-0"><i class="material-icons align-middle">navigate_before</i> 同步锁与异步锁</p>
-					<p class="card-text ms-2"></p>
+                    <p class="card-title fs-5 fw-semibold lh-base mb-0">测试 <i class="material-icons align-middle">navigate_next</i></p>
+					<p class="card-text me-2"></p>
 					
 				</div>
 			</div>
